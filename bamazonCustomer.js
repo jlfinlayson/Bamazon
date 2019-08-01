@@ -20,8 +20,8 @@ connection.connect(function(err){
 function start(){
     connection.query("SELECT * FROM products", function(err, results){
         if (err) throw err;
-        else {
-            console.log(results);
+        for (var i = 0; i < results.length; i++) {
+            console.log(results[i].product_name + " | " + results[i].department_name + " | " + results[i].price + " | " + results[i].stock_quantity);
         }
     });
     connection.end();
