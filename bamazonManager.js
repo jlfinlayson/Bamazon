@@ -156,9 +156,8 @@ function addInventory() {
                                 );
                             }
                             console.log(table.toString());
-                            console.log("You have successfully added " + answer.productQuantity + " " + answer.productName + "s to the inventory.");
+                            console.log("You have successfully added " + newQuantity + " " + chosenItem.product_name + "s to the inventory.");
                         })
-                        console.log("There are now " + newQuantity + " " + chosenItem.product_name + "s in stock.");
 
                         connection.end();
                     }
