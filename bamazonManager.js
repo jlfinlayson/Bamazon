@@ -36,9 +36,9 @@ function start() {
             else if (answer.managerOptions === "Add to Inventory") {
                 addInventory();
             }
-            //else if (answer.managerOptions === "Add a New Product") {
-            //     addNewProduct();
-            // }
+            else if (answer.managerOptions === "Add a New Product") {
+                addNewProduct();
+            }
         });
 }
 
@@ -96,56 +96,126 @@ function addInventory() {
             }
         });
         for (var i = 0; i < results.length; i++) {
-                table.push(
-                    [results[i].item_id, results[i].product_name, results[i].department_name, "$" + results[i].price, results[i].stock_quantity]
-                );
+            table.push(
+                [results[i].item_id, results[i].product_name, results[i].department_name, "$" + results[i].price, results[i].stock_quantity]
+            );
         }
         console.log(table.toString());
+        inquirer
+            .prompt([
+                {
+                    name: "id",
+                    type: "input",
+                    message: "What is the id of the product would you like to add inventory to?"
+                },
+                {
+                    name: "quantity",
+                    type: "input",
+                    message: "How many would you like to add?",
+                    validate: function (value) {
+                        if (isNaN(value) === false) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            ])
+            .then(function (answer) {
+                var chosenItem;
+                for (var i = 0; i < results.length; i++) {
+                    if (results[i].item_id == answer.id) {
+                        chosenItem = results[i];
+                    }
+                }
+                var newQuantity = (chosenItem.stock_quantity + parseInt(answer.quantity));
+
+                connection.query(
+                    "UPDATE products SET ? WHERE ?",
+                    [
+                        {
+                            stock_quantity: newQuantity
+                        },
+                        {
+                            item_id: chosenItem.item_id
+                        }
+                    ],
+                    function (error) {
+                        if (error) throw err;
+                        console.log("There are now " + newQuantity + " " + chosenItem.product_name + "s in stock.");
+
+                        connection.end();
+                    }
+                );
+            })
+    })
+};
+
+function addNewProduct() {
     inquirer
         .prompt([
             {
-                name: "id",
+                name: "productName",
                 type: "input",
-                message: "What is the id of the product would you like to add inventory to?"
+                message: "What is the name of the product you would like to add?",
             },
             {
-                name: "quantity",
+                name: "productDepartment",
                 type: "input",
-                message: "How many would you like to add?",
+                message: "What department is the product you would like to add in?",
+            },
+            {
+                name: "productPrice",
+                type: "input",
+                message: "What is the price of the product you would like to add?",
                 validate: function (value) {
                     if (isNaN(value) === false) {
                         return true;
                     }
                     return false;
                 }
-            }
+            },
+            {
+                name: "productQuantity",
+                type: "input",
+                message: "What is the quantity of product you would like to add?",
+                validate: function (value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                    }
+                    return false;
+                }
+            },
+
         ])
         .then(function (answer) {
-            var chosenItem;
-            for (var i = 0; i < results.length; i++) {
-                if (results[i].item_id == answer.id) {
-                    chosenItem = results[i];
-                }
-            }
-            var newQuantity = (chosenItem.stock_quantity + parseInt(answer.quantity));
-
-            connection.query(
-                "UPDATE products SET ? WHERE ?",
-                [
+            inquirer
+                .prompt([
                     {
-                        stock_quantity: newQuantity
-                    },
-                    {
-                        item_id: chosenItem.item_id
+                        name: "confirm",
+                        type: "list",
+                        message: ("Are you sure you add " + answer.productName + " ?"),
+                        choices: ["YES", "NO"],
                     }
-                ],
-                function (error) {
-                    if (error) throw err;
-                    console.log("There are now " + newQuantity + " " + chosenItem.product_name + "s in stock.");
+                ])
+                .then(function (user) {
+                    if (user.confirm === "YES") {
+                        connection.query(
+                            "INSERT INTO products SET ?",
+                            {
+                                product_name: answer.productName,
+                                department_name: answer.productDepartment,
+                                price: answer.productPrice,
+                                stock_quantity: answer.productQuantity,
+                            },
+                            function (error) {
+                                if (error) throw err;
+                                console.log("You have successfully added " + answer.productQuantity + " " + answer.productName + ".");
 
-                    connection.end();
-                }
-            );
+                                connection.end();
+                            }
+
+                        )
+                    }
+                })
         })
-    })
 }
