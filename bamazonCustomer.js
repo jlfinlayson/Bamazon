@@ -68,7 +68,7 @@ function start() {
                             {
                                 name: "confirm",
                                 type: "list",
-                                message: ("Are you sure you want to buy " + answer.quantity + " " + chosenItem.product_name + "'s for $" + totalPrice + "?"),
+                                message: ("Are you sure you want to buy " + answer.quantity + " " + chosenItem.product_name + "s for $" + totalPrice + "?"),
                                 choices: ["YES", "NO"],
                             }
                         ])
