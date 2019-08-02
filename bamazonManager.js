@@ -209,8 +209,23 @@ function addNewProduct() {
                             },
                             function (error) {
                                 if (error) throw err;
-                                console.log("You have successfully added " + answer.productQuantity + " " + answer.productName + ".");
-
+                                connection.query("SELECT * FROM products", function (err, results) {
+                                    if (err) throw err;
+                                    var table = new Table({
+                                        head: ["Id#", "Product Name", "Department", "Price", "Quantity"],
+                                        style: {
+                                            head: ["bold", "green"],
+                                            border: ["green"],
+                                        }
+                                    });
+                                    for (var i = 0; i < results.length; i++) {
+                                        table.push(
+                                            [results[i].item_id, results[i].product_name, results[i].department_name, "$" + results[i].price, results[i].stock_quantity]
+                                        );
+                                    }
+                                    console.log(table.toString());
+                                    console.log("You have successfully added " + answer.productQuantity + " " + answer.productName + "s to the inventory.");
+                                })
                                 connection.end();
                             }
 
