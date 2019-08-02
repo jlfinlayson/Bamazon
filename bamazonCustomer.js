@@ -1,5 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var Table = require('cli-table2');
+var colors = require('colors');
 
 // Information to connect to mysql database
 var connection = mysql.createConnection({
@@ -20,9 +22,19 @@ connection.connect(function (err) {
 function start() {
     connection.query("SELECT * FROM products", function (err, results) {
         if (err) throw err;
+        var table = new Table({
+            head: ["Id#", "Product Name", "Department", "Price", "Quantity"],
+            style: {
+                head: ["bold", "green"],
+                border: ["green"],
+            }
+        });
         for (var i = 0; i < results.length; i++) {
-            console.log(results[i].item_id + " | " + results[i].product_name + " | " + results[i].department_name + " | " + results[i].price + " | " + results[i].stock_quantity);
+            table.push(
+                [results[i].item_id, results[i].product_name, results[i].department_name, "$" + results[i].price, results[i].stock_quantity]
+            );
         }
+        console.log(table.toString());
         inquirer
             .prompt([
                 {
